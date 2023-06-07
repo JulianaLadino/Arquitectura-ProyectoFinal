@@ -2,6 +2,7 @@ import machine
 import time
 import network
 import urequests
+import ujson
 
 # Configuración de pines GPIO
 pin_sensor = machine.Pin(27, machine.Pin.IN)
@@ -20,6 +21,10 @@ estado_anterior_pulsador = 0
 # Configuración de la conexión WiFi
 ssid = "ZETA_ZETA"
 password = "1214739710m"
+
+# Aquí debes proporcionar el token de acceso y el chat ID para enviar el mensaje a través de la API de Telegram
+token = "6167490093:AAFB1FYnKx2wZvewTb3r4uqcMSPyfmpb3w4"
+chat_id = "888243944"
 
 def conectar_wifi():
     sta_if = network.WLAN(network.STA_IF)
@@ -41,10 +46,19 @@ def enviar_mensaje_telegram(texto):
     # Aquí debes proporcionar el token de acceso y el chat ID para enviar el mensaje a través de la API de Telegram
     token = "6167490093:AAFB1FYnKx2wZvewTb3r4uqcMSPyfmpb3w4"
     chat_id = "888243944"
-    url = f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&text={texto}"
+    url = f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&text={texto}&"
     response = urequests.get(url)
     print("Mensaje enviado a Telegram:", response.text)
     response.close()
+
+def obtener_respuesta_telegram():
+    num_messages = 1
+    url = f"https://api.telegram.org/bot{token}/getChatHistory?chat_id={chat_id}&limit={num_messages}"
+    response = urequests.get(url)
+    data = ujson.loads(response.text)
+    print("Mensaje recibido desde Telegram:", response.text)
+    messages = data["result"]["messages"]
+    return messages
 
 # Conexión WiFi
 conectar_wifi()
@@ -59,6 +73,8 @@ while True:
         estado_anterior_sensor = estado_sensor
         mensaje = f"Nuevo estado del sensor: {estado_sensor}"
         enviar_mensaje_telegram(mensaje)
+        mensaje_recibido = obtener_respuesta_telegram()
+        print(mensaje_recibido["text"])        
 
     if estado_pulsador != estado_anterior_pulsador:
         print("Cambio en el estado del pulsador:", estado_pulsador)
@@ -76,38 +92,3 @@ while True:
 
     # Pequeña pausa para evitar lecturas rápidas del sensor y el pulsador
     time.sleep(0.1)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Escribe tu código aquí :-)
