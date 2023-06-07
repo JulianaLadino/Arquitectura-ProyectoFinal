@@ -19,8 +19,8 @@ estado_anterior_sensor = 1
 estado_anterior_pulsador = 0
 
 # Configuración de la conexión WiFi
-ssid = "ZETA_ZETA"
-password = "1214739710m"
+ssid = "mateo"
+password = "123456789"
 
 # Aquí debes proporcionar el token de acceso y el chat ID para enviar el mensaje a través de la API de Telegram
 token = "6167490093:AAFB1FYnKx2wZvewTb3r4uqcMSPyfmpb3w4"
@@ -53,11 +53,13 @@ def enviar_mensaje_telegram(texto):
 
 def obtener_respuesta_telegram():
     num_messages = 1
+    token = "6167490093:AAFB1FYnKx2wZvewTb3r4uqcMSPyfmpb3w4"
+    chat_id = "888243944"
     url = f"https://api.telegram.org/bot{token}/getChatHistory?chat_id={chat_id}&limit={num_messages}"
     response = urequests.get(url)
     data = ujson.loads(response.text)
     print("Mensaje recibido desde Telegram:", response.text)
-    messages = data["result"]["messages"]
+    messages = data["result"]["text"]
     return messages
 
 # Conexión WiFi
@@ -73,8 +75,9 @@ while True:
         estado_anterior_sensor = estado_sensor
         mensaje = f"Nuevo estado del sensor: {estado_sensor}"
         enviar_mensaje_telegram(mensaje)
+        time.sleep(10)
         mensaje_recibido = obtener_respuesta_telegram()
-        print(mensaje_recibido["text"])        
+        print(mensaje_recibido)        
 
     if estado_pulsador != estado_anterior_pulsador:
         print("Cambio en el estado del pulsador:", estado_pulsador)
